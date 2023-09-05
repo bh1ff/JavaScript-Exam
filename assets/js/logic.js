@@ -3,7 +3,7 @@ let currentQuestionIndex = 0;
 let time = questions.length * 15;
 let timerId;
 
-let score = 0; // Initialize score to 0
+let score = 0; // Initialize score
 
 // DOM elements
 const timeEl = document.getElementById("time");
@@ -13,70 +13,74 @@ const questionTitle = document.getElementById("question-title");
 const choicesEl = document.getElementById("choices");
 const endScreenEl = document.getElementById("end-screen");
 const finalScoreEl = document.getElementById("final-score");
-const scoreEl = document.getElementById("score"); // Element to display the current score
+const scoreEl = document.getElementById("score");
 
-// Function to start the quiz
+// Sound effects
+const correctSound = new Audio('assets/sfx/correct.wav');
+const incorrectSound = new Audio('assets/sfx/incorrect.wav');
+
+// Start the quiz
 function startQuiz() {
     let startScreenEl = document.getElementById("start-screen");
-    startScreenEl.setAttribute("class", "hide"); // Hide the start screen
-    questionContainer.removeAttribute("class"); // Show the questions container
-    timerId = setInterval(clockTick, 1000); // Start the timer
+    startScreenEl.setAttribute("class", "hide");
+    questionContainer.removeAttribute("class");
+    timerId = setInterval(clockTick, 1000);
     timeEl.textContent = time;
-    getQuestion(); // Load the first question
+    getQuestion();
 }
 
-// Function to display the current question and choices
+// Display the question
 function getQuestion() {
     let currentQuestion = questions[currentQuestionIndex];
-    questionTitle.textContent = currentQuestion.title; // Display the question title
-    choicesEl.innerHTML = ""; // Clear out any old choices
-    // Loop through the choices and create buttons for each one
+    questionTitle.textContent = currentQuestion.title;
+    choicesEl.innerHTML = "";
     currentQuestion.choices.forEach(function(choice, i) {
         let choiceNode = document.createElement("button");
         choiceNode.setAttribute("class", "choice");
         choiceNode.setAttribute("value", choice);
         choiceNode.textContent = i + 1 + ". " + choice;
-        choiceNode.onclick = answerClick; // Attach event listener for click
+        choiceNode.onclick = answerClick;
         choicesEl.appendChild(choiceNode);
     });
 }
 
-// Function to handle the answer click
+// Handle answer click
 function answerClick() {
-    // Check if the clicked answer is correct
     if (this.value === questions[currentQuestionIndex].answer) {
         score += 5; // Add 5 points for a correct answer
         scoreEl.textContent = score; // Update the displayed score
+        correctSound.play(); // Play correct sound effect
     } else {
-        time -= 10; // Deduct 10 seconds for an incorrect answer
-        if (time < 0) time = 0; // Ensure time doesn't go negative
+        time -= 10; // Deduct time for an incorrect answer
+        if (time < 0) time = 0;
         timeEl.textContent = time;
+        incorrectSound.play(); // Play incorrect sound effect
     }
-    currentQuestionIndex++; // Move to the next question
+    currentQuestionIndex++;
     if (currentQuestionIndex === questions.length) {
-        endQuiz(); // End the quiz if all questions are answered
+        endQuiz();
     } else {
-        getQuestion(); // Otherwise, display the next question
+        getQuestion();
     }
 }
 
-// Function to end the quiz
+// End the quiz
 function endQuiz() {
-    clearInterval(timerId); // Stop the timer
-    endScreenEl.removeAttribute("class"); // Show the end screen
-    questionContainer.setAttribute("class", "hide"); // Hide the questions container
+    clearInterval(timerId);
+    endScreenEl.removeAttribute("class");
+    questionContainer.setAttribute("class", "hide");
     finalScoreEl.textContent = score; // Display the final score
 }
 
-// Function to handle the clock tick
+// Handle the clock tick
 function clockTick() {
-    time--; // Decrement the time
+    time--;
     timeEl.textContent = time;
     if (time <= 0) {
-        endQuiz(); // End the quiz if time runs out
+        endQuiz();
     }
 }
 
 // Event listeners
-startBtn.onclick = startQuiz; // Start the quiz when the start button is clicked
-submitBtn.onclick = saveHighscore; // Save the highscore when the submit button is clicked
+startBtn.onclick = startQuiz;
+submitBtn.onclick = saveHighscore;
